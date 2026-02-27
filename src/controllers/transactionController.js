@@ -50,4 +50,17 @@ const removeTransaction = async(req, res) => {
     }
 };
 
-module.exports = { addTransaction, getHistory, removeTransaction };
+const getRecent = async (req, res) => {
+    if (!req.user) {
+        return res.status(401).json({ error: 'No autenticado' });
+    }
+
+    try {
+        const recent = await transactionService.getRecentTransactions(req.user.id);
+        res.json(recent);
+    } catch (error) {
+        res.status(500).json({ error: error.message });
+    }
+};
+
+module.exports = { addTransaction, getHistory, removeTransaction, getRecent };

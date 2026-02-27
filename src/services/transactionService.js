@@ -83,4 +83,20 @@ const deleteTransaction = async(transactionId, userId) => {
     return true;
 };
 
-module.exports = { createTransaction, getTransactions, deleteTransaction };
+const getRecentTransactions = async (userId) => {
+    const { data, error } = await supabase
+        .from('transactions')
+        .select(`
+            *,
+            categories:category_id (name, icon, color),
+            accounts:account_id (name)
+        `)
+        .eq('user_id', userId)
+        .order('date', { ascending: false })
+        .limit(5);
+
+    if (error) throw error;
+    return data;
+};
+
+module.exports = { createTransaction, getTransactions, deleteTransaction, getRecentTransactions };

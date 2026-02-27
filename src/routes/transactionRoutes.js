@@ -127,6 +127,31 @@ router.get('/', transactionController.getHistory);
 
 /**
  * @openapi
+ * /api/transactions/recent:
+ *   get:
+ *     summary: Obtener últimas transacciones
+ *     description: Retorna las últimas 5 transacciones del usuario.
+ *     tags:
+ *       - Transactions
+ *     security:
+ *       - cookieAuth: []
+ *     responses:
+ *       200:
+ *         description: Lista de las últimas transacciones.
+ *         content:
+ *           application/json:
+ *             schema:
+ *               type: array
+ *               items:
+ *                 $ref: '#/components/schemas/Transaction'
+ *       401:
+ *         description: No autorizado.
+ */
+router.get('/recent', transactionController.getRecent);
+
+
+/**
+ * @openapi
  * /api/transactions/{id}:
  *   delete:
  *     summary: Eliminar y revertir transacción

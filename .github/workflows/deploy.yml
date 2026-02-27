@@ -1,0 +1,51 @@
+name: CI/CD Pipeline to Koyeb
+
+on:
+  push:
+    branches:
+      - main
+
+jobs:
+  test_and_deploy:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout Code
+        uses: actions/checkout@v3
+
+      - name: Setup Node.js
+        uses: actions/setup-node@v3
+        with:
+          node-version: '20'
+
+      - name: Install dependencies
+        run: npm ci
+
+      # - name: Run linter (Descomenta cuando configures un linter: npm run lint)
+      #   run: npm run lint
+
+      # - name: Run tests (Descomenta cuando tengas tests: npm run test)
+      #   run: npm test
+
+      - name: Deploy to Koyeb via Webhook
+        # Si Koyeb te provee un webhook para re-desplegar, puedes invocarlo directamente:
+        env:
+          KOYEB_WEBHOOK_URL: ${{ secrets.KOYEB_WEBHOOK_URL }}
+        run: |
+          if [ -z "$KOYEB_WEBHOOK_URL" ]; then
+            echo "Aún no se ha configurado KOYEB_WEBHOOK_URL, omitiendo despliegue webhook."
+          else
+            curl -X POST "$KOYEB_WEBHOOK_URL"
+            echo "Trigger de despliegue enviado a Koyeb."
+          fi
+          
+      # ALTERNATIVA USANDO EL CLI DE KOYEB (Descomenta para usar el CLI en vez de Webhook):
+      # - name: Deploy to Koyeb via CLI
+      #   shell: bash
+      #   env:
+      #     KOYEB_API_TOKEN: ${{ secrets.KOYEB_API_TOKEN }}
+      #   run: |
+      #     curl -sL https://github.com/koyeb/koyeb-cli/releases/latest/download/koyeb-linux-amd64.tar.gz | tar -xzv
+      #     sudo mv koyeb /usr/local/bin/
+      #     koyeb login --token "$KOYEB_API_TOKEN"
+      #     # Reemplaza 'mi-aplicacion/mi-servicio' con los nombres reales en Koyeb
+      #     koyeb service redeploy mi-aplicacion/mi-servicio
