@@ -148,8 +148,51 @@ router.post('/', accountController.addAccount);
  *         description: Error interno del servidor
  */
 router.delete('/:id', accountController.removeAccount);
-
-
-
+/**
+ * @openapi
+ * /api/accounts/bridge:
+ *   post:
+ *     summary: Transferir fondos entre dos cuentas (Bridge)
+ *     description: Genera una transferencia monetaria entre dos cuentas del mismo propietario, registrando un gasto ('expense') en la cuenta origen y un ingreso ('income') en la cuenta destino.
+ *     tags:
+ *       - Accounts
+ *     security:
+ *       - cookieAuth: []
+ *     requestBody:
+ *       required: true
+ *       content:
+ *         application/json:
+ *           schema:
+ *             type: object
+ *             required:
+ *               - from_account_id
+ *               - to_account_id
+ *               - amount
+ *             properties:
+ *               from_account_id:
+ *                 type: string
+ *                 format: uuid
+ *                 example: 3fa85f64-5717-4562-b3fc-2c963f66afa6
+ *               to_account_id:
+ *                 type: string
+ *                 format: uuid
+ *                 example: 1ba85f64-5717-4562-b3fc-2c963f66afa1
+ *               amount:
+ *                 type: number
+ *                 description: Monto a transferir (siempre enviado en positivo)
+ *                 example: 250.50
+ *               category_id:
+ *                 type: string
+ *                 format: uuid
+ *                 description: (Opcional) Categoria específica para justificar esta transferencia.
+ *     responses:
+ *       200:
+ *         description: Transferencia completada exitosamente
+ *       400:
+ *         description: Error de validación, error arrojado por el procedimient SQL (RPC) o monedas distintas.
+ *       401:
+ *         description: No autorizado
+ */
+router.post('/bridge', accountController.bridgeAccounts);
 
 module.exports = router;

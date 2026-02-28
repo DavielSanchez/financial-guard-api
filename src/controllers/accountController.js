@@ -59,4 +59,21 @@ const removeAccount = async(req, res) => {
     }
 };
 
-module.exports = { getAccounts, getBalance, addAccount, patchAccount, removeAccount };
+const bridgeAccounts = async (req, res) => {
+    try {
+        const userId = req.user.id;
+        const { from_account_id, to_account_id, amount, category_id } = req.body;
+
+        if (!from_account_id || !to_account_id || !amount) {
+            return res.status(400).json({ error: "from_account_id, to_account_id y amount son requeridos." });
+        }
+
+        const result = await accountService.bridgeAccounts(userId, from_account_id, to_account_id, amount, category_id);
+        res.status(200).json({ message: "Transferencia completada exitosamente", data: result });
+    } catch (error) {
+        // Asumiendo que errores como "monedas distintas" o "saldo insuficiente" pueden ser devueltos por el RPC
+        res.status(400).json({ error: error.message });
+    }
+};
+
+module.exports = { getAccounts, getBalance, addAccount, patchAccount, removeAccount, bridgeAccounts };

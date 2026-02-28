@@ -37,4 +37,17 @@ const remove = async(req, res) => {
     }
 };
 
-module.exports = { addGoal, getAll, contribute, remove };
+const getAnalytics = async (req, res) => {
+    try {
+        const analytics = await goalService.getGoalAnalytics(req.params.id, req.user.id);
+        res.json(analytics);
+    } catch (error) {
+        if (error.message === "Meta no encontrada") {
+            res.status(404).json({ error: error.message });
+        } else {
+            res.status(500).json({ error: error.message });
+        }
+    }
+};
+
+module.exports = { addGoal, getAll, contribute, remove, getAnalytics };

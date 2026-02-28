@@ -205,6 +205,32 @@ router.post('/:id/contribute', goalController.contribute);
  */
 router.delete('/:id', goalController.remove);
 
+/**
+ * @openapi
+ * /api/goals/{id}/analytics:
+ *   get:
+ *     summary: Obtener analíticas detalladas de la meta de ahorro
+ *     description: Calcula la racha, el próximo pago sugerido o requerido, porcentaje de completitud y proyección de la meta o alcancía. Incluye progresión aritmética y comodines para rachas mayores a 30 días en alcancías diarias.
+ *     tags:
+ *       - Goals
+ *     security:
+ *       - cookieAuth: []
+ *     parameters:
+ *       - in: path
+ *         name: id
+ *         required: true
+ *         schema:
+ *           type: string
+ *           format: uuid
+ *     responses:
+ *       200:
+ *         description: Analíticas obtenidas exitosamente
+ *       401:
+ *         description: No autorizado
+ *       404:
+ *         description: Meta no encontrada
+ */
+router.get('/:id/analytics', goalController.getAnalytics);
 
 
 module.exports = router;

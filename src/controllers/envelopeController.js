@@ -15,9 +15,14 @@ const createEnvelope = async (req, res) => {
         const envelopePayload = {
             category_id: req.body.category_id,
             budget_amount: req.body.budget_amount,
+            currency: req.body.currency || 'DOP',
+            color: req.body.color,
+            icon: req.body.icon,
+            period_type: req.body.period_type || 'monthly',
             period_month: req.body.period_month || new Date().getMonth() + 1,
             period_year: req.body.period_year || new Date().getFullYear(),
         };
+
         const envelope = await envelopeService.createEnvelope(req.user.id, envelopePayload);
         res.status(201).json(envelope);
     } catch (error) {

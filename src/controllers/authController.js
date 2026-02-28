@@ -32,7 +32,7 @@ const register = async (req, res) => {
             }
         });
 
-        if (error) return res.status(400).json({ error: error.message });
+        if (error) return res.status(400).json({ error: error });
         
         res.status(201).json({ 
             message: "Registro exitoso. Revisa tu email.",

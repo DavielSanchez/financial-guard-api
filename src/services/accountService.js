@@ -57,4 +57,22 @@ const deleteAccount = async(accountId, userId) => {
     return true;
 };
 
-module.exports = { getAllAccounts, createAccount, getTotalBalance, updateAccount, deleteAccount };
+const bridgeAccounts = async (userId, fromAccountId, toAccountId, amount, categoryId) => {
+    const positiveAmount = Math.abs(amount);
+
+    const { data, error } = await supabase.rpc('execute_account_bridge', {
+        p_user_id: userId,
+        p_from_account_id: fromAccountId,
+        p_to_account_id: toAccountId,
+        p_amount: positiveAmount,
+        p_category_id: categoryId
+    });
+
+    if (error) {
+        throw new Error(error.message);
+    }
+
+    return data;
+};
+
+module.exports = { getAllAccounts, createAccount, getTotalBalance, updateAccount, deleteAccount, bridgeAccounts };

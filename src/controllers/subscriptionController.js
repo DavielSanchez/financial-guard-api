@@ -14,12 +14,12 @@ const createSubscription = async (req, res) => {
         const subPayload = {
             name: req.body.name,
             amount: req.body.amount,
+            currency: req.body.currency || 'DOP',
             billing_cycle: req.body.billing_cycle,
             next_bill_date: req.body.next_bill_date,
-            is_active: req.body.is_active,
+            is_active: req.body.is_active !== undefined ? req.body.is_active : true,
             icon: req.body.icon,
             color: req.body.color,
-            description: req.body.description
         };
         const subscription = await subscriptionService.createSubscription(req.user.id, subPayload);
         res.status(201).json(subscription);
