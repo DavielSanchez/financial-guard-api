@@ -26,6 +26,7 @@ app.use(cors({
         'https://82fxd9nc-3001.use2.devtunnels.ms',
         'https://82fxd9nc-3000.use2.devtunnels.ms',
         'https://financial-guard-client.vercel.app',
+        'https://financialguard-dev.davielsanchez.com',
         process.env.FRONTEND_URL // Dominio dinámico de producción
     ].filter(Boolean),
     credentials: true,

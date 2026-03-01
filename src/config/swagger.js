@@ -9,8 +9,14 @@ const options = {
             description: 'API para el control de finanzas personales, presupuestos y alcancías.',
         },
         servers: [{
-            url: 'http://localhost:3000',
+            url: 'https://financial-guard-client-dev.onrender.com',
             description: 'Servidor de desarrollo',
+        }, {
+                url: 'https://financialguard-api.davielsanchez.com',
+                description: 'Servidor de produccion',
+            }, {
+                url: 'http://localhost:3000',
+                description: 'Servidor de desarrollo local',
         }, ],
         components: {
             securitySchemes: {
