@@ -60,11 +60,13 @@ const login = async (req, res) => {
 
         if (dbError) return res.status(500).json({ error: "Error al obtener perfil" });
 
+        const isProd = process.env.NODE_ENV === 'production';
+
         res.cookie('token', token, {
             httpOnly: true,
-            secure: true,
-            domain: '.davielsanchez.com',
-            sameSite: 'lax',
+            secure: isProd,
+            domain: isProd ? '.davielsanchez.com' : undefined,
+            sameSite: isProd ? 'none' : 'lax',
             maxAge: 1000 * 60 * 60 * 24 * 7,
             path: '/'
         });
