@@ -15,6 +15,7 @@ const formatUserData = (authUser, profileData, settingsData) => ({
         language: settingsData?.language || 'es',
         currency: settingsData?.currency || 'USD',
     },
+    onboardingCompleted: profileData?.onboarding_completed || false,
     lastSignIn: authUser.last_sign_in_at
 });
 
@@ -103,4 +104,28 @@ const logout = (req, res) => {
     res.json({ message: "Sesión cerrada" });
 };
 
-module.exports = { register, login, logout, getMe };
+const completeOnboarding = async (req, res) => {
+    try {
+        const userId = req.user.id;
+
+        const { data, error } = await supabase
+            .from('profiles')
+            .update({ onboarding_completed: true })
+            .eq('id', userId)
+            .select()
+            .single();
+
+        if (error) {
+            return res.status(500).json({ error: "Error al actualizar el estado del onboarding" });
+        }
+
+        res.status(200).json({
+            message: "Onboarding completado exitosamente",
+            profile: data
+        });
+    } catch (err) {
+        res.status(500).json({ error: err.message });
+    }
+};
+
+module.exports = { register, login, logout, getMe, completeOnboarding };

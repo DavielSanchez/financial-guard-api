@@ -1,6 +1,7 @@
 const express = require('express');
 const router = express.Router();
 const authController = require('../controllers/authController');
+const authenticate = require('../middlewares/auth');
 
 /**
  * @openapi
@@ -166,6 +167,24 @@ router.get('/me', authController.getMe);
  *       200:
  *         description: Sesión cerrada correctamente
  */
-router.post('/logout', authController.logout);
+/**
+ * @openapi
+ * /api/auth/onboarding:
+ *   put:
+ *     summary: Actualizar estado del onboarding
+ *     description: Marca el "Protocolo de Iniciación" como completado (onboarding_completed=true) para el usuario autenticado.
+ *     tags:
+ *       - Auth
+ *     security:
+ *       - cookieAuth: []
+ *     responses:
+ *       200:
+ *         description: Estado actualizado exitosamente.
+ *       401:
+ *         description: No hay sesión activa o token inválido.
+ *       500:
+ *         description: Error interno al intentar actualizar perfil en BD.
+ */
+router.put('/onboarding', authenticate, authController.completeOnboarding);
 
 module.exports = router;
