@@ -63,8 +63,9 @@ const login = async (req, res) => {
         res.cookie('token', token, {
             httpOnly: true,
             secure: true,
-            sameSite: 'none',
-            maxAge: 3600000 * 24,
+            domain: '.davielsanchez.com',
+            sameSite: 'lax',
+            maxAge: 1000 * 60 * 60 * 24 * 7,
             path: '/'
         });
 
