@@ -1,4 +1,3 @@
-// server.js
 const app = require('./src/app');
 require('dotenv').config();
 
