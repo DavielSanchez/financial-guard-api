@@ -54,16 +54,24 @@ const getDeltaLabel = require('../utils/getDeltaLabel');
 // };
 
 const dashboardService = {
-    getStats: async(userId, period = 'Day') => {
+  getStats: async (userId, period = 'Day', isGlobal = false) => {
         const { start, end, prevStart, prevEnd } = getDateRanges(period);
 
         const [accounts, currentTrans, prevTrans] = await Promise.all([
-            supabase.from('accounts').select('balance').eq('user_id', userId).eq('is_hidden', false),
+          supabase.from('accounts').select('balance, is_hidden').eq('user_id', userId),
             supabase.from('transactions').select('amount, type, date').eq('user_id', userId).gte('date', start).lte('date', end),
             supabase.from('transactions').select('amount, type').eq('user_id', userId).gte('date', prevStart).lte('date', prevEnd)
         ]);
 
-        const netWorth = accounts.data?.reduce((acc, curr) => acc + parseFloat(curr.balance), 0) || 0;
+    const walletsTotal = accounts.data
+      ?.filter(acc => !acc.is_hidden)
+      .reduce((acc, curr) => acc + parseFloat(curr.balance), 0) || 0;
+
+    const vaultsTotal = accounts.data
+      ?.filter(acc => acc.is_hidden)
+      .reduce((acc, curr) => acc + parseFloat(curr.balance), 0) || 0;
+
+    const netWorth = isGlobal ? (walletsTotal + vaultsTotal) : walletsTotal;
 
         // Separar transacciones por tipo para los gráficos
         const incomeTransactions = currentTrans.data?.filter(t => t.type === 'income') || [];
@@ -104,6 +112,7 @@ const dashboardService = {
 
         return {
           balance: netWorth, // El total de las cuentas
+          vaults_balance: vaultsTotal, // El balance separado de las bóvedas
           income: stats.income,
           expense: stats.expense,
           delta: parseFloat(delta.toFixed(1)),

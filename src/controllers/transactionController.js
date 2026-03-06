@@ -31,11 +31,12 @@ const getHistory = async(req, res) => {
             endDate: req.query.endDate,
             type: req.query.type,
             accountId: req.query.accountId,
-            limit: req.query.limit || 20
+            limit: parseInt(req.query.limit) || 20,
+            page: parseInt(req.query.page) || 1
         };
 
-        const history = await transactionService.getTransactions(req.user.id, filters);
-        res.json(history);
+        const result = await transactionService.getTransactions(req.user.id, filters);
+        res.json(result);
     } catch (error) {
         res.status(500).json({ error: error.message });
     }

@@ -14,6 +14,7 @@ const categoriesRoutes = require('./routes/categoryRoutes')
 const settingRoutes = require('./routes/settingRoutes')
 const envelopeRoutes = require('./routes/envelopeRoutes');
 const subscriptionRoutes = require('./routes/subscriptionRoutes');
+const budgetTemplateRoutes = require('./routes/budgetTemplateRoutes');
 
 const authenticate = require('./middlewares/auth');
 
@@ -50,6 +51,7 @@ app.use('/api/dashboard', authenticate, dashboardRoutes);
 app.use('/api/categories', authenticate, categoriesRoutes);
 app.use('/api/settings', authenticate, settingRoutes);
 app.use('/api/budget/envelopes', authenticate, envelopeRoutes);
+app.use('/api/budget/templates', authenticate, budgetTemplateRoutes);
 app.use('/api/budget/subscriptions', authenticate, subscriptionRoutes);
 
 module.exports = app;

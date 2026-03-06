@@ -1,11 +1,17 @@
 const supabase = require('../config/supabase');
 
-const getAllAccounts = async(userId) => {
-    const { data, error } = await supabase
+const getAllAccounts = async (userId, isHidden) => {
+    let query = supabase
         .from('accounts')
         .select('*')
         .eq('user_id', userId)
         .order('created_at', { ascending: false });
+
+    if (isHidden !== undefined) {
+        query = query.eq('is_hidden', isHidden);
+    }
+
+    const { data, error } = await query;
 
     if (error) throw error;
     return data;

@@ -24,6 +24,9 @@ const contribute = async(req, res) => {
         const updated = await goalService.contributeToGoal(req.params.id, req.user.id, amount);
         res.json(updated);
     } catch (error) {
+        if (error.message === 'Solo se permite un aporte diario para este reto') {
+            return res.status(400).json({ error: error.message });
+        }
         res.status(500).json({ error: error.message });
     }
 };

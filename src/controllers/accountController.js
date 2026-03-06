@@ -3,7 +3,13 @@ const accountService = require('../services/accountService');
 const getAccounts = async(req, res) => {
     try {
         const userId = req.user.id;
-        const accounts = await accountService.getAllAccounts(userId);
+        let isHidden = undefined;
+
+        if (req.query.is_hidden !== undefined) {
+            isHidden = req.query.is_hidden === 'true';
+        }
+
+        const accounts = await accountService.getAllAccounts(userId, isHidden);
         res.json(accounts);
     } catch (error) {
         res.status(500).json({ error: error.message });

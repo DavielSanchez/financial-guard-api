@@ -33,7 +33,7 @@ const getTransactions = async(userId, filters = {}) => {
             *,
             categories (name, icon, color),
             accounts (name)
-        `)
+        `, { count: 'exact' })
         .eq('user_id', userId);
 
     // Filtros inteligentes
@@ -43,15 +43,29 @@ const getTransactions = async(userId, filters = {}) => {
     if (filters.accountId) query = query.eq('account_id', filters.accountId);
     if (filters.categoryId) query = query.eq('category_id', filters.categoryId);
 
-    // Límite opcional (para el dashboard o listas largas)
-    const limit = filters.limit ? parseInt(filters.limit) : 50;
+    // Paginación
+    const limit = filters.limit ? parseInt(filters.limit) : 20;
+    const page = filters.page ? parseInt(filters.page) : 1;
+    const offset = (page - 1) * limit;
 
-    const { data, error } = await query
+    const { data, error, count } = await query
         .order('date', { ascending: false })
-        .limit(limit);
+        .range(offset, offset + limit - 1);
 
     if (error) throw error;
-    return data;
+
+    const totalPages = Math.ceil((count || 0) / limit);
+    const hasMore = page < totalPages;
+
+    return {
+        transactions: data || [],
+        pagination: {
+            total: count || 0,
+            page,
+            totalPages,
+            hasMore
+        }
+    };
 };
 
 const deleteTransaction = async(transactionId, userId) => {

@@ -33,9 +33,17 @@ const goalService = {
 
         if (fError || !goal) throw new Error("Meta no encontrada");
 
-        // 2. Calculamos nuevo ahorro y actualizamos fecha de contribución
-        const newSaved = parseFloat(goal.saved_already) + parseFloat(amount);
+        // 2. Validar regla de alcancía diaria (solo un aporte por día)
         const today = new Date().toISOString().split('T')[0];
+
+        if (goal.is_piggy_bank && goal.piggy_type === 'daily') {
+            if (goal.last_contribution_date === today) {
+                throw new Error('Solo se permite un aporte diario para este reto');
+            }
+        }
+
+        // 3. Calculamos nuevo ahorro y actualizamos fecha de contribución
+        const newSaved = parseFloat(goal.saved_already) + parseFloat(amount);
 
         const { data: updatedGoal, error: uError } = await supabase
             .from('goals')

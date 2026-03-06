@@ -87,9 +87,23 @@ const deleteSubscription = async (id, userId) => {
     return true;
 };
 
+const getNearestSubscription = async (userId) => {
+    const { data, error } = await supabase
+        .from('subscriptions')
+        .select('*')
+        .eq('user_id', userId)
+        .eq('is_active', true)
+        .order('next_bill_date', { ascending: true })
+        .limit(1);
+
+    if (error) throw error;
+    return data && data.length > 0 ? data[0] : null;
+};
+
 module.exports = {
     getSubscriptions,
     createSubscription,
     updateSubscription,
-    deleteSubscription
+    deleteSubscription,
+    getNearestSubscription
 };

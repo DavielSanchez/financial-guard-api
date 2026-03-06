@@ -22,6 +22,26 @@ router.get('/', subscriptionController.getSubscriptions);
 
 /**
  * @openapi
+ * /api/budget/subscriptions/nearest:
+ *   get:
+ *     summary: Obtener la suscripción más próxima a vencerse
+ *     description: Retorna la única suscripción activa cuya fecha de próximo cobro esté más cerca.
+ *     tags:
+ *       - Subscriptions
+ *     security:
+ *       - cookieAuth: []
+ *     responses:
+ *       200:
+ *         description: La suscripción más próxima a vencerse.
+ *       401:
+ *         description: No autorizado.
+ *       404:
+ *         description: No se encontraron suscripciones activas.
+ */
+router.get('/nearest', subscriptionController.getNearestSubscription);
+
+/**
+ * @openapi
  * /api/budget/subscriptions:
  *   post:
  *     summary: Crear una suscripción

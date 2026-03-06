@@ -13,7 +13,7 @@ const getEnvelopes = async (userId, month, year) => {
     const endDate = endOfMonth(targetDate).toISOString();
 
     // 1. Fetch envelopes for the user and period
-    const { data: envelopes, error: envError } = await supabase
+    let { data: envelopes, error: envError } = await supabase
         .from('budget_envelopes')
         .select(`
             id,
@@ -28,8 +28,53 @@ const getEnvelopes = async (userId, month, year) => {
 
     if (envError) throw envError;
 
+    // --- LAZY LOADING BUDGET TEMPLATES ---
     if (!envelopes || envelopes.length === 0) {
-        return [];
+        // Query budget_templates to see if we should auto-create envelopes
+        const { data: templates, error: templateError } = await supabase
+            .from('budget_templates')
+            .select(`
+                user_id,
+                category_id,
+                budget_amount,
+                categories:category_id (id, name, icon, color)
+            `)
+            .eq('user_id', userId);
+
+        if (templateError) throw templateError;
+
+        if (templates && templates.length > 0) {
+            // Map templates to envelope payload
+            const newEnvelopesPayload = templates.map(t => ({
+                user_id: t.user_id,
+                category_id: t.category_id,
+                budget_amount: t.budget_amount,
+                period_month: targetMonth,
+                period_year: targetYear,
+                currency: 'DOP', // Default or fetch if available
+                color: t.categories?.color || '#000000',
+                icon: t.categories?.icon || 'wallet',
+                period_type: 'monthly'
+            }));
+
+            // Insert into budget_envelopes
+            const { data: insertedEnvelopes, error: insertError } = await supabase
+                .from('budget_envelopes')
+                .insert(newEnvelopesPayload)
+                .select(`
+                    id,
+                    budget_amount,
+                    period_month,
+                    period_year,
+                    categories:category_id (id, name, icon, color)
+                `);
+
+            if (insertError) throw insertError;
+
+            envelopes = insertedEnvelopes || [];
+        } else {
+            return [];
+        }
     }
 
     // 2. Fetch expenses for the user in the target month to calculate 'spent'

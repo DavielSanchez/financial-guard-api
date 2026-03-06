@@ -53,9 +53,22 @@ const deleteSubscription = async (req, res) => {
     }
 };
 
+const getNearestSubscription = async (req, res) => {
+    try {
+        const result = await subscriptionService.getNearestSubscription(req.user.id);
+        if (!result) {
+            return res.status(404).json({ message: "No active subscriptions found." });
+        }
+        res.json(result);
+    } catch (error) {
+        res.status(500).json({ error: error.message });
+    }
+};
+
 module.exports = {
     getSubscriptions,
     createSubscription,
     updateSubscription,
-    deleteSubscription
+    deleteSubscription,
+    getNearestSubscription
 };
