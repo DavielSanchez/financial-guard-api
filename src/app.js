@@ -17,6 +17,7 @@ const subscriptionRoutes = require('./routes/subscriptionRoutes');
 const budgetTemplateRoutes = require('./routes/budgetTemplateRoutes');
 
 const authenticate = require('./middlewares/auth');
+const supabase = require('./config/supabase');
 
 const app = express();
 
@@ -53,5 +54,27 @@ app.use('/api/settings', authenticate, settingRoutes);
 app.use('/api/budget/envelopes', authenticate, envelopeRoutes);
 app.use('/api/budget/templates', authenticate, budgetTemplateRoutes);
 app.use('/api/budget/subscriptions', authenticate, subscriptionRoutes);
+
+app.get('/api/system/wakeup', async (req, res) => {
+    try {
+        const start = Date.now();
+        const { data, error } = await supabase.from('profiles').select('id').limit(1);
+
+        if (error) throw error;
+
+        const duration = Date.now() - start;
+        console.log(`[WakeUp] Sistema activo. Latencia DB: ${duration}ms`);
+
+        res.status(200).json({
+            status: 'online',
+            database: 'connected',
+            latency: `${duration}ms`,
+            timestamp: new Date().toISOString()
+        });
+    } catch (err) {
+        console.error('[WakeUp Error]:', err.message);
+        res.status(500).json({ status: 'error', message: err.message });
+    }
+});
 
 module.exports = app;

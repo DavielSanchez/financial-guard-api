@@ -163,9 +163,68 @@ const deleteEnvelope = async (id, userId) => {
     return true;
 };
 
+const ensureMonthlyBudgets = async (userId, targetMonth, targetYear) => {
+    // Verificamos si ya hay sobres para el mes en curso
+    const { data: existingEnvelopes, error: checkError } = await supabase
+        .from('budget_envelopes')
+        .select('id')
+        .eq('user_id', userId)
+        .eq('period_month', targetMonth)
+        .eq('period_year', targetYear);
+
+    if (checkError) throw checkError;
+
+    // Si ya existen, no hacemos nada y retornamos éxito
+    if (existingEnvelopes && existingEnvelopes.length > 0) {
+        return true;
+    }
+
+    // Si NO existen, leemos los templates del usuario
+    const { data: templates, error: templateError } = await supabase
+        .from('budget_templates')
+        .select(`
+            user_id,
+            category_id,
+            budget_amount,
+            categories:category_id (id, name, icon, color)
+        `)
+        .eq('user_id', userId);
+
+    if (templateError) throw templateError;
+
+    // Si no tiene templates, tampoco hacemos nada
+    if (!templates || templates.length === 0) {
+        return true;
+    }
+
+    // Preparamos la data para insertar
+    const newEnvelopesPayload = templates.map(t => ({
+        user_id: t.user_id,
+        category_id: t.category_id,
+        budget_amount: t.budget_amount,
+        period_month: targetMonth,
+        period_year: targetYear,
+        currency: 'USD',
+        color: t.categories?.color || '#000000',
+        icon: t.categories?.icon || 'wallet',
+        period_type: 'monthly',
+        actual_spent: 0
+    }));
+
+    // Inserción en lote
+    const { error: insertError } = await supabase
+        .from('budget_envelopes')
+        .insert(newEnvelopesPayload);
+
+    if (insertError) throw insertError;
+
+    return true;
+};
+
 module.exports = {
     getEnvelopes,
     createEnvelope,
     updateEnvelope,
-    deleteEnvelope
+    deleteEnvelope,
+    ensureMonthlyBudgets
 };

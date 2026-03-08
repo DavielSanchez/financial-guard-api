@@ -6,7 +6,7 @@ const aiController = require('../controllers/aiController');
  * @openapi
  * /api/coach/ask:
  *   post:
- *     summary: Hablar con el Coach IA
+ *     summary: Hablar con el Coach IA con contexto
  *     tags:
  *       - AI Coach
  *     requestBody:
@@ -16,10 +16,23 @@ const aiController = require('../controllers/aiController');
  *           schema:
  *             type: object
  *             properties:
- *               userId:
- *                 type: string
  *               message:
  *                 type: string
+ *               history:
+ *                 type: array
+ *                 items:
+ *                   type: object
+ *                   properties:
+ *                     role:
+ *                       type: string
+ *                       enum: [user, model]
+ *                     parts:
+ *                       type: array
+ *                       items:
+ *                         type: object
+ *                         properties:
+ *                           text:
+ *                             type: string
  *     responses:
  *       200:
  *         description: Respuesta del Coach generada exitosamente
